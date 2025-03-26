@@ -47,6 +47,9 @@ namespace CodeBase.States
                 OnExit = Application.Quit,
             };
             _uiWindows.Open<WinGameResults>(data);
+#if !UNITY_STANDALONE && !UNITY_EDITOR
+            _uiWindows.GetWindow<WinMobileInput>()?.Close(); //TODO: when standalone UI scene will appear, remove it
+#endif
         }
 
         public void Exit()

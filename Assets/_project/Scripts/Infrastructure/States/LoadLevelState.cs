@@ -57,11 +57,22 @@ namespace CodeBase.States
             _levelSnapshot = new LevelSnapshot(levelId, nextLevelConfig?.Name, nextLevelConfig?.LevelId);
             _sceneLoader.Load(levelName, ShowcaseWaitingCallback);
         }
+        
+        public void Exit()
+        {
+            _curtain.Close();
+        }
 
         private void ShowcaseWaitingCallback()
         {
             InitPlayer();
             InitEnemies();
+            InitBaseHud();
+            _stateMachine.Enter<GameLoopState, LevelSnapshot>(_levelSnapshot);
+        }
+
+        private void InitBaseHud()
+        {
             var winHud = _uiWindows.GetWindow<WinBaseHud>();
             if (winHud.IsOpened)
             {
@@ -72,7 +83,9 @@ namespace CodeBase.States
                 _uiWindows.Open<WinBaseHud>(new WinBaseHud.Data() { levelSnapshot = _levelSnapshot });
             }
 
-            _stateMachine.Enter<GameLoopState, LevelSnapshot>(_levelSnapshot);
+#if !UNITY_STANDALONE && !UNITY_EDITOR
+            _uiWindows.Open<WinMobileInput>(); //TODO: when standalone UI scene will appear, remove it
+#endif
         }
 
         private void InitPlayer()
@@ -110,11 +123,6 @@ namespace CodeBase.States
         private void CameraFollow(GameObject hero)
         {
             Camera.main?.GetComponent<CameraFollower>().Follow(hero);
-        }
-
-        public void Exit()
-        {
-            _curtain.Close();
         }
     }
 }

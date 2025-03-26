@@ -30,6 +30,11 @@ namespace CodeBase.Hero
         {
             UpdateCooldown();
 
+            TryAttackWithCooldown();
+        }
+
+        private void TryAttackWithCooldown()
+        {
             var cooldownIsUp = _attackCooldown <= 0;
             if (cooldownIsUp && !_canAttack)
             {

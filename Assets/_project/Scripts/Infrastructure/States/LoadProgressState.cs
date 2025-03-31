@@ -8,19 +8,16 @@ namespace CodeBase.States
     public class LoadProgressState : IState
     {
         private readonly GameStateMachine _stateMachine;
-        private readonly PlayerBaseCharacteristicsConfig _playerConfig;
         private readonly IPersistentProgressService _progressService;
         private readonly ISaveLoadService _saveLoadService;
         private readonly ILevelsDataService _levelsDataService;
 
         public LoadProgressState(GameStateMachine stateMachine,
-            PlayerBaseCharacteristicsConfig playerConfig,
             IPersistentProgressService progressService,
             ISaveLoadService saveLoadService,
             ILevelsDataService levelsDataService)
         {
             _stateMachine = stateMachine;
-            _playerConfig = playerConfig;
             _progressService = progressService;
             _saveLoadService = saveLoadService;
             _levelsDataService = levelsDataService;
@@ -43,6 +40,6 @@ namespace CodeBase.States
         }
 
         private PlayerProgressData CreateNewPlayerProgressFromConfig() =>
-            _progressService.CreatePlayerProgress(_playerConfig);
+            _progressService.CreatePlayerProgress();
     }
 }

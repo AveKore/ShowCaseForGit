@@ -37,9 +37,12 @@ namespace CodeBase.Services.Localization
 
         public string Localize(string key, Dictionary<string, object> param = null)
         {
-            string text = LocalizationSettings.StringDatabase.GetTableEntry("IntarfaceLocalizationTable", key, _curInterfaceLocale).Entry
-                .Value;
-
+            string text = 
+                LocalizationSettings.StringDatabase.GetTableEntry("IntarfaceLocalizationTable", key, _curInterfaceLocale).Entry?.Value;
+            if (text == null)
+            {
+                return key;
+            }
             if (param != null)
             {
                 foreach (var par in param)

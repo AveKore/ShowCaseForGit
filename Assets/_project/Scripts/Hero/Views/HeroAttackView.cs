@@ -10,7 +10,7 @@ namespace CodeBase.Hero
 
         [SerializeField] private ParticleSystem _attackFx;
 
-        private Collider[] _hits = new Collider[1];
+        private Collider[] _hits;       
         private HeroModel _heroModel;
         private Transform _attackPoint;
         private float _attackCooldown;
@@ -52,9 +52,12 @@ namespace CodeBase.Hero
             _canAttack = false;
             _attackFx.Play();
             _attackCooldown = _heroModel.DamageModel.AttackCooldown.Value;
-            if (Hit(out var enemyView))
+            if (Hit(out var enemyViews))
             {
-                HitEnemy(enemyView);
+                foreach (var enemyView in enemyViews)
+                {
+                    HitEnemy(enemyView);
+                }
             }
         }
 
@@ -68,14 +71,11 @@ namespace CodeBase.Hero
             }
         }
 
-        private bool Hit(out Collider hit)
+        private bool Hit(out Collider[] hits)
         {
-            var hitCount = Physics.OverlapSphereNonAlloc(_attackPoint.position,
-                _heroModel.DamageModel.AttackRadius.Value, _hits, _layerMask);
-
-            hit = hitCount > 0 ? _hits[0] : null;
-
-            return hitCount > 0;
+            hits = Physics.OverlapSphere(_attackPoint.position,
+                _heroModel.DamageModel.AttackRadius.Value, _layerMask);
+            return hits.Length > 0;
         }
 
         private void UpdateCooldown()

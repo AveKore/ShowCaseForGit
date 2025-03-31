@@ -1,10 +1,8 @@
-﻿using CodeBase.Configs;
-using CodeBase.Core.Factory;
-using CodeBase.Extencions;
+﻿using CodeBase.Core.Factory;
 using CodeBase.Hero;
-using CodeBase.Services.Localization;
 using CodeBase.Services.PersistentProgress;
 using UnityEngine;
+using Zenject;
 
 namespace CodeBase.Windows
 {
@@ -17,17 +15,20 @@ namespace CodeBase.Windows
         private bool _isInitialized;
         private HeroModel _heroModel;
 
-        public void Init(
-            HeroModel heroModel, 
-            PlayerBaseCharacteristicsConfig playerBaseCharacteristicsConfig,
-            IPersistentProgressService persistentProgressService,
-            IInterfaceLocalizationService localizationService)
+        [Inject] private IPersistentProgressService _persistentProgressService;
+        [Inject] private DiContainer _diContainer;
+        
+        public void Init(HeroModel heroModel)
         {
             _heroModel = heroModel;
             SingleInitialize();
-            foreach (var characteristic in playerBaseCharacteristicsConfig.characteristics)
+            foreach (var characteristic in _persistentProgressService.StatsConfigs)
             {
-                TryCreateCharacteristic(persistentProgressService, characteristic, localizationService);
+                if (characteristic.Value.Levels[0].Cost == 0)
+                {
+                    continue;
+                }
+                _characteristicsUpgradeViewFactory.CreateElement(_heroModel, characteristic.Key);
             }
         }
 
@@ -36,37 +37,13 @@ namespace CodeBase.Windows
             _characteristicsUpgradeViewFactory?.ReleasePool();
         }
 
-        private void TryCreateCharacteristic(
-            IPersistentProgressService persistentProgressService,
-            CharacteristicConfig characteristic, 
-            IInterfaceLocalizationService localizationService)
-        {
-            if (CharacteristicExists(persistentProgressService, characteristic, out var characteristicModel) && characteristic.IsUpgradable)
-            {
-                _characteristicsUpgradeViewFactory.CreateElement(
-                    _heroModel, 
-                    characteristicModel, 
-                    characteristic,
-                    persistentProgressService,
-                    localizationService);
-            }
-        }
-
-        private static bool CharacteristicExists(
-            IPersistentProgressService persistentProgressService,
-            CharacteristicConfig characteristic, 
-            out HeroCharacteristicModel characteristicModel)
-        {
-            return persistentProgressService.PlayerProgress.TryGetCharacteristicByType(characteristic.Type, out characteristicModel);
-        }
-
         private void SingleInitialize()
         {
             if (_isInitialized)
             {
                 return;
             }
-            _characteristicsUpgradeViewFactory = new(_characteristicsUpgradeViewPrefab, _pool);
+            _characteristicsUpgradeViewFactory = new(_characteristicsUpgradeViewPrefab, _pool, _diContainer);
             _isInitialized = true;
         }
     }

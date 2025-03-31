@@ -5,7 +5,7 @@ namespace CodeBase.Configs
 {
     public class PlayerProgressData
     {
-        public readonly Dictionary<CharacteristicType, HeroCharacteristicModel> CharacteristicModels = new();
+        public Dictionary<CharacteristicType, StatLevel> StatsProgress = new();
         public int SkillPoints;
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using CodeBase.Configs;
 using CodeBase.Core;
 using CodeBase.Core.Factory;
 using CodeBase.Core.Ui;
@@ -20,7 +19,6 @@ namespace CodeBase.States
         private void Construct(SceneLoader sceneLoader,
             PrefabFactory prefabFactory,
             UiWindows uiWindows,
-            PlayerBaseCharacteristicsConfig playerConfig,
             IPersistentProgressService progressService,
             IEnemyDataService enemyDataService,
             ISaveLoadService saveLoadService,
@@ -31,7 +29,7 @@ namespace CodeBase.States
                 { typeof(BootstrapState), new BootstrapState(this, sceneLoader) },
                 {
                     typeof(LoadProgressState),
-                    new LoadProgressState(this, playerConfig, progressService, saveLoadService, levelsDataService)
+                    new LoadProgressState(this, progressService, saveLoadService, levelsDataService)
                 },
                 {
                     typeof(LoadLevelState),

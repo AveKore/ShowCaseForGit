@@ -1,4 +1,6 @@
-﻿using CodeBase.Configs;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using CodeBase.Configs;
 using CodeBase.Extencions;
 using CodeBase.Hero;
 using CodeBase.Services.Localization;
@@ -7,6 +9,7 @@ using TMPro;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace CodeBase.Windows
 {
@@ -21,22 +24,19 @@ namespace CodeBase.Windows
         [SerializeField] private Button _upgradeButton;
        
         private HeroModel _heroModel;
-        private HeroCharacteristicModel _heroCharacteristicsModel;
-        private CharacteristicConfig _characteristicConfig;
-        private IPersistentProgressService _persistentProgressService;
-        private IInterfaceLocalizationService _localizationService;
+        private Dictionary<CharacteristicType, CharacterStat> _statConfigs;
+        private StatLevel _curStatProgress;
+        private CharacteristicType _characteristicType;
+        
+        [Inject] private IPersistentProgressService _persistentProgressService;
+        [Inject] private IInterfaceLocalizationService _localizationService;
 
-        public void Init(HeroModel heroModel,
-            HeroCharacteristicModel heroCharacteristicsModel,
-            CharacteristicConfig characteristicConfig,
-            IPersistentProgressService persistentProgressService, IInterfaceLocalizationService localizationService)
+        public void Init(HeroModel heroModel, CharacteristicType characteristicType)
         {
-            
+            _curStatProgress = _persistentProgressService.PlayerProgress.StatsProgress[characteristicType];
+            _characteristicType = characteristicType;
+            _statConfigs = _persistentProgressService.StatsConfigs;
             _heroModel = heroModel;
-            _heroCharacteristicsModel = heroCharacteristicsModel;
-            _characteristicConfig = characteristicConfig;
-            _persistentProgressService = persistentProgressService;
-            _localizationService = localizationService;
             
             _upgradeButton.onClick.RemoveAllListeners();
             _upgradeButton.onClick.AddListener(UpgradeCharacteristics);
@@ -45,25 +45,28 @@ namespace CodeBase.Windows
 
             void CheckUpgradeAvailability(int skillPoints)
             {
-                var nextLevel = heroCharacteristicsModel.Level + 1;
-                var nameTextKey = $"win-characteristic/{_characteristicConfig.Type.ToString().ToKebabCase()}/title";
+                var nextLevel = _curStatProgress.Level + 1;
+                var nameTextKey = $"win-characteristic/{_characteristicType.ToString().ToKebabCase()}/title";
+                
                 _characteristicsNameText.text =
                     _localizationService.Localize(nameTextKey);
-                    
-                if (_characteristicConfig.Levels.Count <= nextLevel)
+                
+                if (_statConfigs[_characteristicType].Levels.Count <= nextLevel)
                 {
                     SetMaxText();
                     return;
                 }
+                var newLevelConfig = _statConfigs[_characteristicType].Levels[nextLevel];
+
                 
                 _upgradeButton.interactable = true;
                 _characteristicValueBlock.SetActive(true);
                 _characteristicLevelText.text = (nextLevel).ToString();
                 
-                _characteristicValueText.text = _characteristicConfig.Levels[_heroCharacteristicsModel.Level].GetValueAsString();
-                _characteristicNextValueText.text = _characteristicConfig.Levels[nextLevel].GetValueAsString();
-                _upgradeButton.interactable = skillPoints >= _characteristicConfig.Levels[_heroCharacteristicsModel.Level].UpgradeCost;
-                _characteristicCostText.text = _characteristicConfig.Levels[_heroCharacteristicsModel.Level].UpgradeCost.ToString();
+                _characteristicValueText.text = _curStatProgress.Value.ToString(CultureInfo.InvariantCulture);
+                _characteristicNextValueText.text =  newLevelConfig.Value.ToString(CultureInfo.InvariantCulture);
+                _upgradeButton.interactable = skillPoints >= _curStatProgress.Cost;
+                _characteristicCostText.text = _curStatProgress.Cost.ToString();
             }
         }
 
@@ -71,18 +74,21 @@ namespace CodeBase.Windows
         {
             _upgradeButton.interactable = false;
             _characteristicValueBlock.SetActive(false);
-            _characteristicNextValueText.text = _characteristicConfig.Levels[_heroCharacteristicsModel.Level].GetValueAsString();
+            _characteristicNextValueText.text = _curStatProgress.Value.ToString(CultureInfo.InvariantCulture);
             _characteristicLevelText.text = _localizationService.Localize("win-characteristic/max-value/text");
             _characteristicCostText.text = _localizationService.Localize("win-characteristic/max-value/text");
         }
 
         private void UpgradeCharacteristics()
         {
-            var nextLevel = _heroCharacteristicsModel.Level + 1;
-
-            _heroModel.UpgradeCharacteristic(_characteristicConfig.Type, _characteristicConfig.Levels[nextLevel]);
-            _persistentProgressService.Upgrade(_characteristicConfig, _heroCharacteristicsModel);
-            _heroModel.SkillPointsModel.RemoveSkillPoints(_heroCharacteristicsModel.UpgradeCost);
+            var nextLevel = _curStatProgress.Level + 1;
+            var newLevelConfig = _statConfigs[_characteristicType].Levels[nextLevel];
+            var cost = _curStatProgress.Cost;
+            _curStatProgress = newLevelConfig;
+            _heroModel.UpgradeCharacteristic(_characteristicType, newLevelConfig);
+            _persistentProgressService.Upgrade(_characteristicType);
+            _heroModel.SkillPointsModel.RemoveSkillPoints(cost);
+     
         }
         
     }

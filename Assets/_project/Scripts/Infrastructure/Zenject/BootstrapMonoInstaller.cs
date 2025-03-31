@@ -1,5 +1,4 @@
-﻿using CodeBase.Configs;
-using CodeBase.Core;
+﻿using CodeBase.Core;
 using CodeBase.Core.Factory;
 using CodeBase.Core.Ui;
 using CodeBase.Services.Localization;
@@ -14,8 +13,6 @@ namespace CodeBase.Installers
 {
     public class BootstrapMonoInstaller : MonoInstaller
     {
-        private const string PLAYER_CONFIG_PATH = "Configs/PlayerConfig";
-
         public override void InstallBindings()
         {
             BindSaveLoadService();
@@ -40,9 +37,6 @@ namespace CodeBase.Installers
 
         private void BindPersistentProgress()
         {
-            var playerConfig =
-                Container.InstantiateScriptableObjectResource<PlayerBaseCharacteristicsConfig>(PLAYER_CONFIG_PATH);
-            Container.Bind<PlayerBaseCharacteristicsConfig>().FromScriptableObject(playerConfig).AsSingle().NonLazy();
             Container.Bind<IPersistentProgressService>().To<PersistentProgressService>().AsSingle().NonLazy();
         }
 

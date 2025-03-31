@@ -60,7 +60,7 @@ namespace CodeBase.Core.Ui
                 {
                     var obj = layer.GetChild(j);
                     var wnd = obj.GetComponent<UiWindow>();
-                    diContainer.Inject(wnd);
+                    diContainer.InjectGameObject(wnd.gameObject);
                     if (wnd)
                     {
                         windowsToShutdown.Add(wnd);

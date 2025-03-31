@@ -16,20 +16,18 @@ namespace CodeBase.Hero
             SkillPointsModel.LoadProgress(playerProgress);
         }
 
-        public void UpgradeCharacteristic(
-            CharacteristicType characteristicType,
-            CharacteristicLevelConfig characteristicConfigLevel)
+        public void UpgradeCharacteristic(CharacteristicType characteristicType, StatLevel statLevel)
         {
             switch (characteristicType)
             {
                 case CharacteristicType.Damage:
-                    DamageModel.PowerUpDamage(characteristicConfigLevel.IntValue);
+                    DamageModel.PowerUpDamage((int)statLevel.Value);
                     break;
                 case CharacteristicType.Speed:
-                    SpeedModel.BoostSpeed(characteristicConfigLevel.FloatValue);
+                    SpeedModel.BoostSpeed(statLevel.Value);
                     break;
                 case CharacteristicType.MaxHealth:
-                    HealthModel.UpdatePlayerMaxHealth(characteristicConfigLevel.IntValue);
+                    HealthModel.UpdatePlayerMaxHealth((int)statLevel.Value);
                     break;
                 case CharacteristicType.AttackRadius:
                 case CharacteristicType.AttackCooldown:

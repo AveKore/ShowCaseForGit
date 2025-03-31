@@ -1,50 +1,44 @@
-﻿using CodeBase.Configs;
+﻿using System.Collections.Generic;
+using CodeBase.Configs;
 using CodeBase.Hero;
+using CodeBase.Services.SaveLoad;
+using Zenject;
 
 namespace CodeBase.Services.PersistentProgress
 {
     public class PersistentProgressService : IPersistentProgressService
     {
+        private Dictionary<CharacteristicType, CharacterStat> _statsConfigs = new();
+        public Dictionary<CharacteristicType, CharacterStat> StatsConfigs => _statsConfigs;
         public PlayerProgressData  PlayerProgress { get; set; }
         
-        public PlayerProgressData CreatePlayerProgress(PlayerBaseCharacteristicsConfig playerConfig)
+        [Inject] private ISaveLoadService _saveLoadService;
+        
+        public PlayerProgressData CreatePlayerProgress()
         {
-            PlayerProgress = new PlayerProgressData();
-            for (var index = 0; index < playerConfig.characteristics.Length; index++)
+            _statsConfigs = _saveLoadService.LoadStatsFromExcel();
+            PlayerProgress = new PlayerProgressData
             {
-                var characteristicConfig = playerConfig.characteristics[index];
-                var characteristicModel = CreateNewCharacteristicModel(characteristicConfig);
-                PlayerProgress.CharacteristicModels.Add(characteristicConfig.Type, characteristicModel);
+                SkillPoints = 0,
+                StatsProgress = new Dictionary<CharacteristicType, StatLevel>(),
+            };
+
+            foreach (var configs in _statsConfigs)
+            {
+                PlayerProgress.StatsProgress.Add(configs.Key, configs.Value.Levels[0]);
             }
-            
-            PlayerProgress.SkillPoints = playerConfig.StartSkillPoints;
             return PlayerProgress;
         }
         
-        private HeroCharacteristicModel CreateNewCharacteristicModel(CharacteristicConfig characteristicConfig)
+        public void Upgrade(CharacteristicType characteristicType)
         {
-            var model = new HeroCharacteristicModel();
-            model.Level = 0;
-            model.Type = characteristicConfig.Type;
-                
-            SetValue(characteristicConfig, model, model.Level);
-            model.UpgradeCost = characteristicConfig.Levels[model.Level].UpgradeCost;
-            return model;
-        }
-
-        private void SetValue(CharacteristicConfig characteristicConfig, HeroCharacteristicModel characteristicModel, int level)
-        {
-            characteristicModel.FloatValue = characteristicConfig.Levels[level].FloatValue;
-            characteristicModel.IntValue = characteristicConfig.Levels[level].IntValue;
-            characteristicModel.StringValue = characteristicConfig.Levels[level].StringValue;
-        }
-
-        public void Upgrade(CharacteristicConfig characteristicConfig, HeroCharacteristicModel characteristicModel)
-        {
-            characteristicModel.Level += 1;
-            var newLevel = characteristicModel.Level;
-            SetValue(characteristicConfig, characteristicModel, newLevel);
-            characteristicModel.UpgradeCost = characteristicConfig.Levels[newLevel].UpgradeCost;
+            var curLevel = PlayerProgress.StatsProgress[characteristicType].Level;
+            var newLevel = curLevel + 1;
+            if (StatsConfigs[characteristicType].Levels.Count <= newLevel)
+            {
+                return;
+            }
+            PlayerProgress.StatsProgress[characteristicType] = StatsConfigs[characteristicType].Levels[newLevel];
         }
     }
 }

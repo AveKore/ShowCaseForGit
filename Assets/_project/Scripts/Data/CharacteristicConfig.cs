@@ -1,21 +1,17 @@
 ﻿using System.Collections.Generic;
-using CodeBase.Hero;
-using UnityEngine;
 
 namespace CodeBase.Configs
 {
-    [CreateAssetMenu(menuName = "Project/Configs/CharacteristicConfig")]
-    public class CharacteristicConfig: ScriptableObject
+    public class CharacterStat
     {
-        public CharacteristicType Type;
-        public bool IsUpgradable;
-        public List<CharacteristicLevelConfig> Levels;
+        public string Name { get; set; }
+        public List<StatLevel> Levels { get; set; }
     }
 
-    public enum ValueType
+    public class StatLevel
     {
-        StringValue = 0,
-        IntValue = 1,
-        FloatValue = 2
+        public int Level { get; set; }
+        public int Cost { get; set; }
+        public float Value { get; set; }
     }
 }

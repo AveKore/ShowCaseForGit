@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using CodeBase.Configs;
 using CodeBase.Hero;
-using CodeBase.Services.Localization;
-using CodeBase.Services.PersistentProgress;
 using CodeBase.Windows;
 using UnityEngine;
 using UnityEngine.Pool;
+using Zenject;
 
 namespace CodeBase.Core.Factory
 {
@@ -16,26 +14,23 @@ namespace CodeBase.Core.Factory
         private readonly ObjectPool<CharacteristicsUpgradeView> _characteristicsUpgradeViewPool;
         
         private List<CharacteristicsUpgradeView> _characteristicViews = new ();
+        private readonly DiContainer _diContainer;
 
         public CharacteristicsUpgradeViewFactory(
             CharacteristicsUpgradeView characteristicsUpgradeViewPrefab,
-            Transform characteristicsParent)
+            Transform characteristicsParent, DiContainer diContainer)
         {
             _characteristicsUpgradeViewPrefab = characteristicsUpgradeViewPrefab;
             _characteristicsParent = characteristicsParent;
+            _diContainer = diContainer;
             _characteristicsUpgradeViewPool =
                 new ObjectPool<CharacteristicsUpgradeView>(CreateFunc, GetAction, ReleaseAction);
         }
 
-        public void CreateElement(
-            HeroModel heroModel,
-            HeroCharacteristicModel heroCharacteristicsModel,
-            CharacteristicConfig characteristicConfig,
-            IPersistentProgressService persistentProgressService,
-            IInterfaceLocalizationService localizationService)
+        public void CreateElement(HeroModel heroModel, CharacteristicType characteristicType)
         {
             var view = _characteristicsUpgradeViewPool.Get();
-            view.Init(heroModel, heroCharacteristicsModel, characteristicConfig, persistentProgressService, localizationService);
+            view.Init(heroModel, characteristicType);
             _characteristicViews.Add(view);
         }
         
@@ -60,7 +55,7 @@ namespace CodeBase.Core.Factory
 
         private CharacteristicsUpgradeView CreateFunc()
         {
-            return GameObject.Instantiate(_characteristicsUpgradeViewPrefab, _characteristicsParent);
+            return _diContainer.InstantiatePrefabForComponent<CharacteristicsUpgradeView>(_characteristicsUpgradeViewPrefab, _characteristicsParent);
         }
     }
 }

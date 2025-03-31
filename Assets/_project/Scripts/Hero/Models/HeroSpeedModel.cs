@@ -1,6 +1,5 @@
 ﻿using CodeBase.Configs;
 using CodeBase.Entity;
-using CodeBase.Extencions;
 
 namespace CodeBase.Hero
 {
@@ -13,10 +12,7 @@ namespace CodeBase.Hero
         
         public void LoadProgress(PlayerProgressData playerProgress)
         {
-            if (playerProgress.TryGetCharacteristicByType(CharacteristicType.Speed, out var characteristic))
-            {
-                Speed.Value = characteristic.FloatValue;
-            }
+            Speed.Value = playerProgress.StatsProgress[CharacteristicType.Speed].Value;
         }
     }
 }

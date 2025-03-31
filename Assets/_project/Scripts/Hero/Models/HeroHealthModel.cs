@@ -1,6 +1,5 @@
 ﻿using CodeBase.Configs;
 using CodeBase.Entity;
-using CodeBase.Extencions;
 
 namespace CodeBase.Hero
 {
@@ -14,11 +13,7 @@ namespace CodeBase.Hero
         
         public void LoadProgress(PlayerProgressData playerProgress)
         {
-            if (playerProgress.TryGetCharacteristicByType(CharacteristicType.MaxHealth, out var characteristic))
-            {
-                MaxHealth.Value = characteristic.IntValue;
-            }
-          
+            MaxHealth.Value = (int)playerProgress.StatsProgress[CharacteristicType.MaxHealth].Value;
             Health.Value = MaxHealth.Value;
         }
     }

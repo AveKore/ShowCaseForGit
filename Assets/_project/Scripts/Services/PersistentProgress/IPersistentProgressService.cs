@@ -1,4 +1,5 @@
-﻿using CodeBase.Configs;
+﻿using System.Collections.Generic;
+using CodeBase.Configs;
 using CodeBase.Hero;
 
 namespace CodeBase.Services.PersistentProgress
@@ -6,9 +7,10 @@ namespace CodeBase.Services.PersistentProgress
     public interface IPersistentProgressService : IService
     {
         PlayerProgressData PlayerProgress { get; set; }
-        
-        public PlayerProgressData CreatePlayerProgress(PlayerBaseCharacteristicsConfig playerConfig);
+        public Dictionary<CharacteristicType, CharacterStat> StatsConfigs { get;  }
 
-        public void Upgrade(CharacteristicConfig characteristicConfig, HeroCharacteristicModel characteristicModel);
+        public PlayerProgressData CreatePlayerProgress();
+
+        public void Upgrade(CharacteristicType characteristicType);
     }
 }

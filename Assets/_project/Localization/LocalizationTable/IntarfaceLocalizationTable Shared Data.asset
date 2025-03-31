@@ -59,6 +59,10 @@ MonoBehaviour:
     m_Key: win-game-result/kill-count/button
     m_Metadata:
       m_Items: []
+  - m_Id: 1852293046595584
+    m_Key: win-characteristic/save/button
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

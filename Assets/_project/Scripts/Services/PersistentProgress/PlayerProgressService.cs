@@ -13,10 +13,15 @@ namespace CodeBase.Services.PersistentProgress
         public PlayerProgressData  PlayerProgress { get; set; }
         
         [Inject] private ISaveLoadService _saveLoadService;
+
+
+        public void LoadPlayerConfigs()
+        {
+            _statsConfigs = _saveLoadService.LoadStatsFromExcel();
+        }
         
         public PlayerProgressData CreatePlayerProgress()
         {
-            _statsConfigs = _saveLoadService.LoadStatsFromExcel();
             PlayerProgress = new PlayerProgressData
             {
                 SkillPoints = 0,
@@ -30,15 +35,9 @@ namespace CodeBase.Services.PersistentProgress
             return PlayerProgress;
         }
         
-        public void Upgrade(CharacteristicType characteristicType)
+        public void Upgrade(CharacteristicType characteristicType, StatLevel statValue)
         {
-            var curLevel = PlayerProgress.StatsProgress[characteristicType].Level;
-            var newLevel = curLevel + 1;
-            if (StatsConfigs[characteristicType].Levels.Count <= newLevel)
-            {
-                return;
-            }
-            PlayerProgress.StatsProgress[characteristicType] = StatsConfigs[characteristicType].Levels[newLevel];
+            PlayerProgress.StatsProgress[characteristicType] = statValue;
         }
     }
 }

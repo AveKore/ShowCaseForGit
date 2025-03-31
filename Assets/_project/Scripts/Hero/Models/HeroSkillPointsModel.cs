@@ -20,6 +20,12 @@ namespace CodeBase.Hero
             SkillPoints.Value -= count;
             SaveValue();
         }
+        
+        public void SetSkillPoints(int count)
+        {
+            SkillPoints.Value = count;
+            SaveValue();
+        }
 
         private void SaveValue()
         {

@@ -9,8 +9,10 @@ namespace CodeBase.Services.PersistentProgress
         PlayerProgressData PlayerProgress { get; set; }
         public Dictionary<CharacteristicType, CharacterStat> StatsConfigs { get;  }
 
+        public void LoadPlayerConfigs();
+        
         public PlayerProgressData CreatePlayerProgress();
 
-        public void Upgrade(CharacteristicType characteristicType);
+        public void Upgrade(CharacteristicType characteristicType, StatLevel statValue);
     }
 }

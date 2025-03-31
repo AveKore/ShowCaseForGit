@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using CodeBase.Configs;
 using CodeBase.Extencions;
@@ -30,12 +31,15 @@ namespace CodeBase.Windows
         
         [Inject] private IPersistentProgressService _persistentProgressService;
         [Inject] private IInterfaceLocalizationService _localizationService;
+        private Action<StatLevel, CharacteristicType> _addStatToTempUpdatedAction;
 
-        public void Init(HeroModel heroModel, CharacteristicType characteristicType)
+        public void Init(HeroModel heroModel, CharacteristicType characteristicType,
+            Action<StatLevel, CharacteristicType> addStatToTempUpdatedAction)
         {
             _curStatProgress = _persistentProgressService.PlayerProgress.StatsProgress[characteristicType];
             _characteristicType = characteristicType;
             _statConfigs = _persistentProgressService.StatsConfigs;
+            _addStatToTempUpdatedAction = addStatToTempUpdatedAction;
             _heroModel = heroModel;
             
             _upgradeButton.onClick.RemoveAllListeners();
@@ -85,11 +89,8 @@ namespace CodeBase.Windows
             var newLevelConfig = _statConfigs[_characteristicType].Levels[nextLevel];
             var cost = _curStatProgress.Cost;
             _curStatProgress = newLevelConfig;
-            _heroModel.UpgradeCharacteristic(_characteristicType, newLevelConfig);
-            _persistentProgressService.Upgrade(_characteristicType);
             _heroModel.SkillPointsModel.RemoveSkillPoints(cost);
-     
+            _addStatToTempUpdatedAction?.Invoke(newLevelConfig, _characteristicType);
         }
-        
     }
 }

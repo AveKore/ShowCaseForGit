@@ -36,7 +36,7 @@ namespace CodeBase.States
                     new LoadLevelState(this, sceneLoader, uiWindows, prefabFactory, progressService, enemyDataService,
                         levelsDataService)
                 },
-                { typeof(GameLoopState), new GameLoopState(this, uiWindows, saveLoadService, progressService) },
+                { typeof(GameLoopState), new GameLoopState(this, uiWindows) },
             };
         }
 

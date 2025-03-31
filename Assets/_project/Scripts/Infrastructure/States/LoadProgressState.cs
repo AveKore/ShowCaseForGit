@@ -35,6 +35,7 @@ namespace CodeBase.States
 
         private void LoadProgressOrCreateNew()
         {
+            _progressService.LoadPlayerConfigs();
             _progressService.PlayerProgress =
                 _saveLoadService.Load<PlayerProgressData>() ?? CreateNewPlayerProgressFromConfig();
         }

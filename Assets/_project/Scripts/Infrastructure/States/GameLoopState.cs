@@ -10,21 +10,15 @@ namespace CodeBase.States
     {
         private readonly GameStateMachine _statemachine;
         private readonly UiWindows _uiWindows;
-        private readonly ISaveLoadService _saveLoadService;
 
         private LevelSnapshot _levelSnapshot;
-        private readonly IPersistentProgressService _persistentProgressService;
 
         public GameLoopState(
             GameStateMachine statemachine,
-            UiWindows uiWindows,
-            ISaveLoadService saveLoadService,
-            IPersistentProgressService persistentProgressService)
+            UiWindows uiWindows)
         {
             _statemachine = statemachine;
-            _saveLoadService = saveLoadService;
             _uiWindows = uiWindows;
-            _persistentProgressService = persistentProgressService;
         }
 
         public void Enter(LevelSnapshot levelSnapshot)
@@ -54,7 +48,6 @@ namespace CodeBase.States
 
         public void Exit()
         {
-            _saveLoadService.Save(_persistentProgressService.PlayerProgress);
             _levelSnapshot.LevelFinishedAction -= OnLevelFinished;
         }
     }
